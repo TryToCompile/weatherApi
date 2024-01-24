@@ -3,13 +3,13 @@
 В папке Task9 создаем файл weather.html.
 Необходимо реализовать следующее: 
 1) +
+
 2) Объект от класса WheatherWidget должен уметь запрашивать данные о погоде с http://openweathermap.org. По умолчанию запрос делать для Минска 
-(для улучшения, можно сделать по определению местоположения и запросу по координатам), формат температуры в цельсиях, на русском.
-3) Когда придут данные, то необходимо отрендерить информацию, т.е. на экране, в правом верхнем углу например, должно появиться всплывающее маленькое стилизованное окошко
-с информацией о погоде с инфой вроде «Сейчас в Минске -5 °C (Иконка погоды) "Ясно". Ветер: 4 м/c». Вся информация должна быть взята из ответа (response) API сервиса погоды.
-4) В окошке должна быть кнопочка с крестиком, по клику по которой окно виджета можно закрыть или свернуть, чтобы оно не мешало.
-5) Инициализироваться объект погоды должен следующим образом: 
-new WheatherWidget().getWeather();
+(для улучшения, можно сделать по определению местоположения и запросу по координатам), на русском.
+
+3) +
+4) +
+5) +
 6) Так же в окошке виджета погоды вверху добавить кнопочку а-ля  «Прогноз на 3 дня», по клику на которую должен отправиться запрос за информацией на три-пять дней,
 затем отфильтровать ее, и забрать информацию о погоде на сегодня, завтра, послезавтра примерно на 12 часов дня. Пока обрабатываются данные показать анимированный лоадер (можно просто gif картинку, 
 но желательно какую-нибудь svg-анимацию).
@@ -81,7 +81,7 @@ new WheatherWidget().getWeather();
 class WeatherWidget {
   constructor () {
     this.apiKey = '807c38438480cc9371714293aa8eb1f0';
-    this.apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=Minsk&appid=`;
+    this.apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=Minsk&lang=ru&units=metric&appid=`;
     this.cityName = 'Minsk';
   }
   getWeather() {
@@ -97,15 +97,23 @@ class WeatherWidget {
       .catch(error => reject('Weather data rejected in: '+error));
     })
   }
-
   print(data) {
     let weatherContainer = document.createElement('div');
-    weatherContainer.innerHTML = '<div style="display: flex;"><p style="font-size: 20px;font-family: monospace;">This moment in the window: '+data.weather[0].main+
-                                 '</p>'+'<img src="https://openweathermap.org/img/wn/'+data.weather[0].icon+'@2x.png"/></div><hr/>';
+    weatherContainer.innerHTML = '<div style="display: flex;"><p style="font-size: 20px; margin-bottom: auto; font-family: monospace;">Город '+data.name+': '+data.weather[0].description+
+    ' с температурой аля ~'+Math.round(data.main.temp)+' °C'+                             
+    '</p>'+'<img src="https://openweathermap.org/img/wn/'+data.weather[0].icon+'@2x.png" alt="weather icon"/>'+
+    ' <span id="closeWeatherWindow" style="position: absolute; top: 0px; right: 11px; cursor: pointer; font-size: 20px; color: white;">&#10006;</span></div><hr/>'+
+    '<div style="font-family: monospace; font-size: 40px;">Ветер: '+data.wind.speed+' м/с<br/>Влажность: '+data.main.humidity+'%'+
+    '</div>'+
+    '<button id="forecast-btn" style="font-family: monospace; font-size: 25px; width: 200px; margin: 13px 22%; border:none; border-radius: 10px;">Хочу прогноз на 3 дня!</button>';
     weatherContainer.style = 'position: absolute; top: 2%; right: 2%; word-wrap: break-word; width: 350px; color: white; border-radius: 20px; height: 300px; background-color: #818080; overflow:hidden; border: 1px solid #ccc; padding: 10px;';
-    //alert(JSON.stringify(data.weather[main']));
-    console.log(data.weather[0])
     document.body.append(weatherContainer);
+    document.getElementById('closeWeatherWindow').addEventListener('click', () => {
+      weatherContainer.remove();
+    })
+    document.getElementById('forecast-btn').addEventListener('click', () => {
+      this.getForecast();
+    })
   }
   getForecast() {
     
